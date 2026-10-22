@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Suppress transient dev environment Vite HMR WebSocket notices in AI Studio iframe
+      (function() {
+        const origError = console.error;
+        console.error = function(...args) {
+          if (args[0] && typeof args[0] === 'string' && (args[0].includes('[vite] failed to connect to websocket') || args[0].includes('WebSocket closed without opened'))) {
+            return;
+          }
+          origError.apply(console, args);
+        };
+        window.addEventListener('unhandledrejection', function(event) {
+          const reason = event.reason ? (event.reason.message || String(event.reason)) : '';
+          if (reason.includes('WebSocket') || reason.includes('websocket')) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+          }
+        });
+        window.addEventListener('error', function(event) {
+          const msg = event.message || '';
+          if (msg.includes('WebSocket') || msg.includes('websocket')) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+          }
+        });
+      })();
+    </script>
+    <title>LxS SCENTS | Haute Parfumerie</title>
+    <meta name="description" content="LxS SCENTS - Haute Parfumerie. Luxury fragrances crafted with exceptional ingredients and molecular precision for unmatched longevity." />
+    <meta property="og:title" content="LxS SCENTS | Haute Parfumerie" />
+    <meta property="og:description" content="Discover our ultra-premium luxury fragrances and bespoke scent collection." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Kling (kling.is) Embedded Checkout Script -->
+    <script src="https://embed.kling.is/v1/kling.js" async></script>
+  </head>
+  <body class="bg-[#f5f2eb] antialiased">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

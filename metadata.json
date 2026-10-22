@@ -1,0 +1,8 @@
+{
+  "name": "LxS Scents ehf. - 20.10.2026",
+  "description": "An ultra-premium cinematic luxury perfume brand and AI Scent Sommelier.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -1,0 +1,249 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default Deny Catch-All
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-#]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Admin role strictly verifies UID or admin emails
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.uid == 'VempaKpo94cWuYAPH673GczZ6YX2' ||
+        request.auth.uid == 'OTl3dDZpoKf8WrkDiFOnM8HFsBg1' ||
+        request.auth.token.email == 'leidenzperdomo7@gmail.com' ||
+        request.auth.token.email == 'lxsscents@lxsscents.is' ||
+        request.auth.token.email == 'lxsscents@gmail.com'
+      );
+    }
+
+    // Worker role strictly verifies worker UID or staff emails
+    function isWorker() {
+      return isSignedIn() && (
+        request.auth.uid == 'OTl3dDZpoKf8WrkDiFOnM8HFsBg1' ||
+        request.auth.token.email == 'lxsscents@lxsscents.is' ||
+        request.auth.token.email == 'lxsscents@gmail.com' ||
+        request.auth.token.email == 'staff.fulfillment@lxsscents.com' ||
+        request.auth.token.email == 'staff.fulfillment@maisondeternite.com'
+      );
+    }
+
+    function isStaffOrAdmin() {
+      return isAdmin() || isWorker();
+    }
+
+    // Validation for User Profile
+    function isValidUser(data) {
+      return data.keys().hasAll(['email']) &&
+        data.email is string && data.email.size() <= 150 &&
+        (!('displayName' in data) || (data.displayName is string && data.displayName.size() <= 150)) &&
+        (!('phone' in data) || (data.phone is string && data.phone.size() <= 50)) &&
+        (!('address' in data) || (data.address is string && data.address.size() <= 250)) &&
+        (!('apartment' in data) || (data.apartment is string && data.apartment.size() <= 100)) &&
+        (!('cityZip' in data) || (data.cityZip is string && data.cityZip.size() <= 100)) &&
+        (!('country' in data) || (data.country is string && data.country.size() <= 100)) &&
+        (!('dob' in data) || (data.dob is string && data.dob.size() <= 50)) &&
+        (!('membershipTier' in data) || (data.membershipTier is string && data.membershipTier.size() <= 50)) &&
+        (!('isKloneMember' in data) || data.isKloneMember is bool) &&
+        (!('points' in data) || data.points is number) &&
+        (!('avatarUrl' in data) || (data.avatarUrl is string && data.avatarUrl.size() <= 2048)) &&
+        (!('createdAt' in data) || (data.createdAt is string && data.createdAt.size() <= 60)) &&
+        (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 60));
+    }
+
+    // Prevents self-assigned privileges on initial profile registration
+    function isValidUserCreation(data) {
+      return isValidUser(data) && (
+        isStaffOrAdmin() || (
+          (!('membershipTier' in data) || data.membershipTier == 'free' || data.membershipTier == 'standard' || data.membershipTier == 'Estándar' || data.membershipTier == 'Standard' || data.membershipTier == 'Frítt') &&
+          (!('isKloneMember' in data) || data.isKloneMember == false) &&
+          (!('points' in data) || data.points <= 50)
+        )
+      );
+    }
+
+    // Regular users can only update personal contact details, never RBAC/tiers/points
+    function isOwnerProfileUpdate() {
+      return incoming().diff(existing()).affectedKeys().hasOnly([
+        'email', 'displayName', 'phone', 'address', 'apartment', 'cityZip', 'country', 'dob', 'avatarUrl', 'createdAt', 'updatedAt'
+      ]);
+    }
+
+    // Validation for User Cart
+    function isValidCart(data) {
+      return data.keys().hasAll(['userId', 'items']) &&
+        data.userId is string && data.userId.size() <= 128 &&
+        data.items is list && data.items.size() <= 30 &&
+        (!('itemCount' in data) || data.itemCount is number) &&
+        (!('subtotal' in data) || (data.subtotal is number && data.subtotal >= 0)) &&
+        (!('discountCode' in data) || (data.discountCode is string && data.discountCode.size() <= 50)) &&
+        (!('discountPercent' in data) || data.discountPercent is number) &&
+        (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 60));
+    }
+
+    // Validation for Orders
+    function isValidOrder(data) {
+      return data.keys().hasAll(['id', 'userId', 'customerEmail', 'total', 'createdAt']) &&
+        data.id is string && data.id.size() <= 100 &&
+        data.userId is string && data.userId.size() <= 128 &&
+        data.customerEmail is string && data.customerEmail.size() <= 150 &&
+        data.total is number && data.total >= 0 &&
+        (data.createdAt is timestamp || (data.createdAt is string && data.createdAt.size() <= 60)) &&
+        (!('customerName' in data) || (data.customerName is string && data.customerName.size() <= 100)) &&
+        (!('customerPhone' in data) || (data.customerPhone is string && data.customerPhone.size() <= 30)) &&
+        (!('customerAddress' in data) || (data.customerAddress is string && data.customerAddress.size() <= 200)) &&
+        (!('customerApartment' in data) || (data.customerApartment is string && data.customerApartment.size() <= 50)) &&
+        (!('customerCityZip' in data) || (data.customerCityZip is string && data.customerCityZip.size() <= 100)) &&
+        (!('customerCountry' in data) || (data.customerCountry is string && data.customerCountry.size() <= 100)) &&
+        (!('shippingMethod' in data) || (data.shippingMethod is string && data.shippingMethod.size() <= 100)) &&
+        (!('subtotal' in data) || data.subtotal is number) &&
+        (!('discount' in data) || data.discount is number) &&
+        (!('shipping' in data) || data.shipping is number) &&
+        (!('paymentMethod' in data) || (data.paymentMethod is string && data.paymentMethod.size() <= 50)) &&
+        (!('paymentStatus' in data) || (data.paymentStatus is string && data.paymentStatus.size() <= 50)) &&
+        (!('status' in data) || (data.status is string && data.status.size() <= 50)) &&
+        (!('statusStep' in data) || data.statusStep is number) &&
+        (!('carrier' in data) || (data.carrier is string && data.carrier.size() <= 100)) &&
+        (!('trackingNumber' in data) || (data.trackingNumber is string && data.trackingNumber.size() <= 100)) &&
+        (!('trackingUrl' in data) || (data.trackingUrl is string && data.trackingUrl.size() <= 500)) &&
+        (!('estimatedDelivery' in data) || (data.estimatedDelivery is string && data.estimatedDelivery.size() <= 100)) &&
+        (!('discountCode' in data) || (data.discountCode is string && data.discountCode.size() <= 50)) &&
+        (!('itemsSummary' in data) || (data.itemsSummary is string && data.itemsSummary.size() <= 500)) &&
+        (!('items' in data) || (data.items is list && data.items.size() <= 30)) &&
+        (!('date' in data) || (data.date is string && data.date.size() <= 50)) &&
+        (!('updatedAt' in data) || data.updatedAt is timestamp || (data.updatedAt is string && data.updatedAt.size() <= 60));
+    }
+
+    // Validation for User Files
+    function isValidFile(data) {
+      return data.keys().hasAll(['id', 'userId', 'fileName', 'fileUrl']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.userId is string && data.userId.size() <= 128 &&
+        data.fileName is string && data.fileName.size() <= 200 &&
+        data.fileUrl is string && data.fileUrl.size() <= 1000 &&
+        (!('fileType' in data) || (data.fileType is string && data.fileType.size() <= 100)) &&
+        (!('fileSize' in data) || data.fileSize is number) &&
+        (!('category' in data) || (data.category is string && data.category.size() <= 50)) &&
+        (!('createdAt' in data) || (data.createdAt is string && data.createdAt.size() <= 60)) &&
+        (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 60));
+    }
+
+    // Validation for Promo Recipients
+    function isValidPromoRecipient(data) {
+      return data.keys().hasAll(['email']) &&
+        data.email is string && data.email.size() <= 150 &&
+        (!('orderId' in data) || data.orderId == null || (data.orderId is string && data.orderId.size() <= 100)) &&
+        (!('promoCode' in data) || (data.promoCode is string && data.promoCode.size() <= 50)) &&
+        (!('sentAt' in data) || data.sentAt is timestamp || (data.sentAt is string && data.sentAt.size() <= 60));
+    }
+
+    // Validation for Scent Wishes
+    function isValidScentWish(data) {
+      return data.keys().hasAll(['userName', 'userEmail', 'fragranceName']) &&
+        data.userName is string && data.userName.size() <= 100 &&
+        data.userEmail is string && data.userEmail.size() <= 150 &&
+        data.fragranceName is string && data.fragranceName.size() <= 200 &&
+        (!('createdAt' in data) || data.createdAt is timestamp || (data.createdAt is string && data.createdAt.size() <= 60));
+    }
+
+    // Test collection for boot connection verification
+    match /test/{testId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Newsletter & Promo leads (Anti-spam honeypot and email validation)
+    match /newsletter/{emailDoc} {
+      allow read: if isStaffOrAdmin();
+      allow create, update: if incoming().keys().hasAll(['email']) &&
+        incoming().email is string && incoming().email.size() <= 150 &&
+        (!('honeypot' in incoming()) || incoming().honeypot == '') &&
+        (!('createdAt' in incoming()) || incoming().createdAt is timestamp || (incoming().createdAt is string && incoming().createdAt.size() <= 60));
+      allow delete: if isAdmin();
+    }
+
+    // Promo recipients tracking (prevent duplicate promo coupon deliveries)
+    match /promo_recipients/{emailDoc} {
+      allow get: if true;
+      allow list: if isStaffOrAdmin();
+      allow create, update: if isValidPromoRecipient(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // Scent wishes recommendation collection
+    match /scent_wishes/{wishId} {
+      allow read: if isStaffOrAdmin();
+      allow create: if isValidScentWish(incoming());
+      allow update, delete: if isAdmin();
+    }
+
+    // Global orders collection (for centralized admin & staff fulfillment tracking and customer order history)
+    match /orders/{orderId} {
+      allow get: if (isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.customerEmail == request.auth.token.email)) || isStaffOrAdmin();
+      allow list: if (isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.customerEmail == request.auth.token.email)) || isStaffOrAdmin();
+      allow create: if ((isSignedIn() && (incoming().userId == request.auth.uid || incoming().userId == '' || incoming().userId == 'guest')) || incoming().userId == 'guest' || incoming().userId == '' || isStaffOrAdmin()) && isValidOrder(incoming());
+      allow update: if isStaffOrAdmin() && isValidOrder(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // Collection group for orders (allows admin & staff to query all subcollection orders)
+    match /{path=**}/orders/{orderId} {
+      allow read: if isStaffOrAdmin();
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isStaffOrAdmin();
+      allow list: if isStaffOrAdmin();
+      allow create: if (isOwner(userId) && isValidUserCreation(incoming())) || isStaffOrAdmin();
+      allow update: if (isOwner(userId) && isValidUser(incoming()) && isOwnerProfileUpdate()) || (isStaffOrAdmin() && isValidUser(incoming()));
+      allow delete: if isOwner(userId) || isStaffOrAdmin();
+
+      // Files subcollection (avatars, attachments, custom labels)
+      match /files/{fileId} {
+        allow get: if isOwner(userId) || isStaffOrAdmin();
+        allow list: if isOwner(userId) || isStaffOrAdmin();
+        allow create, update: if (isOwner(userId) || isStaffOrAdmin()) && isValidFile(incoming());
+        allow delete: if isOwner(userId) || isStaffOrAdmin();
+      }
+
+      // Active shopping cart
+      match /cart/{cartDoc} {
+        allow get: if isOwner(userId) || isStaffOrAdmin();
+        allow list: if isOwner(userId) || isStaffOrAdmin();
+        allow create, update: if (isOwner(userId) || isStaffOrAdmin()) && isValidCart(incoming());
+        allow delete: if isOwner(userId) || isStaffOrAdmin();
+      }
+
+      // User orders subcollection with tracking
+      match /orders/{orderId} {
+        allow get: if isOwner(userId) || isStaffOrAdmin();
+        allow list: if isOwner(userId) || isStaffOrAdmin();
+        allow create: if (isOwner(userId) && incoming().userId == request.auth.uid && isValidOrder(incoming())) || isStaffOrAdmin();
+        allow update: if isStaffOrAdmin() && isValidOrder(incoming());
+        allow delete: if isStaffOrAdmin();
+      }
+    }
+  }
+}

@@ -1,0 +1,162 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile with personal contact details, membership tier and preferences",
+      "type": "object",
+      "properties": {
+        "displayName": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "maxLength": 150 },
+        "phone": { "type": "string", "maxLength": 30 },
+        "address": { "type": "string", "maxLength": 200 },
+        "apartment": { "type": "string", "maxLength": 50 },
+        "cityZip": { "type": "string", "maxLength": 100 },
+        "country": { "type": "string", "maxLength": 100 },
+        "dob": { "type": "string", "maxLength": 30 },
+        "membershipTier": { "type": "string", "maxLength": 50 },
+        "isKloneMember": { "type": "boolean" },
+        "points": { "type": "number" },
+        "avatarUrl": { "type": "string", "maxLength": 1000 },
+        "createdAt": { "type": "string", "maxLength": 60 },
+        "updatedAt": { "type": "string", "maxLength": 60 }
+      },
+      "required": ["email", "displayName"]
+    },
+    "UserCart": {
+      "title": "UserCart",
+      "description": "Active shopping cart persisted in Firestore for cross-session and cross-device continuity",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "items": { "type": "array" },
+        "itemCount": { "type": "number" },
+        "subtotal": { "type": "number" },
+        "discountCode": { "type": "string", "maxLength": 50 },
+        "discountPercent": { "type": "number" },
+        "updatedAt": { "type": "string", "maxLength": 60 }
+      },
+      "required": ["userId", "items"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Customer purchase order including items, total, shipping carrier and tracking status",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 100 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "customerName": { "type": "string", "maxLength": 100 },
+        "customerEmail": { "type": "string", "maxLength": 150 },
+        "customerPhone": { "type": "string", "maxLength": 30 },
+        "customerAddress": { "type": "string", "maxLength": 200 },
+        "customerApartment": { "type": "string", "maxLength": 50 },
+        "customerCityZip": { "type": "string", "maxLength": 100 },
+        "customerCountry": { "type": "string", "maxLength": 100 },
+        "shippingMethod": { "type": "string", "maxLength": 100 },
+        "total": { "type": "number" },
+        "subtotal": { "type": "number" },
+        "discount": { "type": "number" },
+        "shipping": { "type": "number" },
+        "discountCode": { "type": "string", "maxLength": 50 },
+        "paymentMethod": { "type": "string", "maxLength": 50 },
+        "paymentStatus": { "type": "string", "maxLength": 50 },
+        "status": { "type": "string", "maxLength": 50 },
+        "statusStep": { "type": "number" },
+        "carrier": { "type": "string", "maxLength": 100 },
+        "trackingNumber": { "type": "string", "maxLength": 100 },
+        "trackingUrl": { "type": "string", "maxLength": 500 },
+        "estimatedDelivery": { "type": "string", "maxLength": 100 },
+        "items": { "type": "array" },
+        "itemsSummary": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string", "maxLength": 60 },
+        "updatedAt": { "type": "string", "maxLength": 60 }
+      },
+      "required": ["id", "userId", "customerEmail", "total", "createdAt"]
+    },
+    "UserFile": {
+      "title": "UserFile",
+      "description": "Uploaded user files and documents (avatar, certificates, consults)",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "fileName": { "type": "string", "maxLength": 200 },
+        "fileUrl": { "type": "string", "maxLength": 1000 },
+        "fileType": { "type": "string", "maxLength": 100 },
+        "fileSize": { "type": "number" },
+        "category": { "type": "string", "maxLength": 50 },
+        "createdAt": { "type": "string", "maxLength": 60 },
+        "updatedAt": { "type": "string", "maxLength": 60 }
+      },
+      "required": ["id", "userId", "fileName", "fileUrl"]
+    },
+    "NewsletterLead": {
+      "title": "NewsletterLead",
+      "description": "Newsletter and discount code opt-in lead with anti-spam honeypot",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "maxLength": 150 },
+        "honeypot": { "type": "string", "maxLength": 0 },
+        "createdAt": { "type": "string", "maxLength": 60 }
+      },
+      "required": ["email", "createdAt"]
+    },
+    "PromoRecipient": {
+      "title": "PromoRecipient",
+      "description": "Log of promotional coupon recipients to prevent duplicate email deliveries",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "maxLength": 150 },
+        "orderId": { "type": "string", "maxLength": 100 },
+        "promoCode": { "type": "string", "maxLength": 50 },
+        "sentAt": { "type": "string", "maxLength": 60 }
+      },
+      "required": ["email"]
+    },
+    "ScentWish": {
+      "title": "ScentWish",
+      "description": "Customer scent recommendations and perfume requests",
+      "type": "object",
+      "properties": {
+        "userName": { "type": "string", "maxLength": 100 },
+        "userEmail": { "type": "string", "maxLength": 150 },
+        "fragranceName": { "type": "string", "maxLength": 200 },
+        "createdAt": { "type": "string", "maxLength": 60 }
+      },
+      "required": ["userName", "userEmail", "fragranceName"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile documents keyed by Firebase Auth UID"
+    },
+    "/users/{userId}/files/{fileId}": {
+      "schema": "UserFile",
+      "description": "Files and avatars uploaded by users or viewable by admin"
+    },
+    "/users/{userId}/cart/current": {
+      "schema": "UserCart",
+      "description": "Current active shopping cart for the user"
+    },
+    "/users/{userId}/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Order records belonging to the user with real-time tracking"
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Global synchronized order documents for central admin and logistics tracking"
+    },
+    "/newsletter/{emailDoc}": {
+      "schema": "NewsletterLead",
+      "description": "Promotional campaign leads and newsletter subscription entries"
+    },
+    "/promo_recipients/{emailDoc}": {
+      "schema": "PromoRecipient",
+      "description": "Tracks sent first-purchase promotional codes to prevent duplicates"
+    },
+    "/scent_wishes/{wishId}": {
+      "schema": "ScentWish",
+      "description": "Customer scent recommendations and perfume requests"
+    }
+  }
+}
