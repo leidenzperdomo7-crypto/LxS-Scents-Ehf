@@ -147,6 +147,10 @@ export default function CartDrawer({
                       <img
                         src={frag.image}
                         alt={frag.name}
+                        loading="lazy"
+                        decoding="async"
+                        width={64}
+                        height={64}
                         className="w-full h-full object-cover"
                       />
                     ) : (

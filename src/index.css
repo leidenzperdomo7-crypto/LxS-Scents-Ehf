@@ -8,3 +8,16 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Cormorant Garamond", ui-serif, Georgia, serif;
 }
+
+@keyframes luxuryImageFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+img[loading="lazy"] {
+  animation: luxuryImageFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

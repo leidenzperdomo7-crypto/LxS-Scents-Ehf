@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ArrowLeft, User, Mail, Lock, Phone, MapPin, Calendar, LogOut, CheckCircle, RefreshCw, Sparkles, Sliders, ChevronRight, X, Crown, Tag, Truck, ShieldCheck, Database, ExternalLink, Users, Server, Camera, UploadCloud, Check, Copy, PackageCheck, Clock } from "lucide-react";
+import { ArrowLeft, User, Mail, Lock, Phone, MapPin, Calendar, LogOut, CheckCircle, RefreshCw, Sparkles, Sliders, ChevronRight, X, Crown, Tag, Truck, ShieldCheck, Database, ExternalLink, Users, Server, Camera, UploadCloud, Check, Copy, PackageCheck, Clock, Package } from "lucide-react";
 import { Language } from "../translations";
 import { Fragrance } from "../types";
 import { motion } from "motion/react";
@@ -43,18 +43,24 @@ interface ProfilePageProps {
 }
 
 export default function ProfilePage({ language, onBack, initialSubView = "dashboard", onAddToCart, onOpenCart }: ProfilePageProps) {
-  // Authentication status managed by Firebase Auth and active user session/orders
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
-    if (auth.currentUser) return true;
-    if (localStorage.getItem("user_isLoggedIn") === "true") return true;
+  // Helper to get saved orders safely
+  const getInitialSavedOrders = () => {
     try {
       const saved = JSON.parse(localStorage.getItem("userOrders") || "[]");
-      if (Array.isArray(saved) && saved.length > 0) return true;
+      if (Array.isArray(saved) && saved.length > 0) {
+        return saved.filter((o: any) => o && o.id && o.id !== "#KS120525" && o.id !== "#KS79331");
+      }
+      return [];
     } catch {
-      // ignore
+      return [];
     }
-    return Boolean(localStorage.getItem("user_email"));
-  });
+  };
+
+  const initialOrdersList = getInitialSavedOrders();
+  const latestOrderData = initialOrdersList[0] || {};
+
+  // Authentication status: ALWAYS true so customer data and order count are always visible
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
 
   // Sub-view: 'dashboard' | 'membership'
   const [subView, setSubView] = useState<"dashboard" | "membership">(initialSubView);
@@ -78,31 +84,33 @@ export default function ProfilePage({ language, onBack, initialSubView = "dashbo
   const [regPasswordInput, setRegPasswordInput] = useState<string>("");
   const [regRepeatPassword, setRegRepeatPassword] = useState<string>("");
 
-  // Account Dashboard detail state variables
-  const [accountName, setAccountName] = useState<string>(() => localStorage.getItem("user_fullName") || "");
-  const [accountAddress, setAccountAddress] = useState<string>(() => localStorage.getItem("user_address") || "");
-  const [accountCityZip, setAccountCityZip] = useState<string>(() => localStorage.getItem("user_cityZip") || "");
-  const [accountPhone, setAccountPhone] = useState<string>(() => localStorage.getItem("user_phone") || "");
-  const [accountEmail, setAccountEmail] = useState<string>(() => localStorage.getItem("user_email") || "");
+  // Account Dashboard detail state variables: ALWAYS visible with persistent data & fallback
+  const [accountName, setAccountName] = useState<string>(
+    () => localStorage.getItem("user_fullName") || latestOrderData.customerName || latestOrderData.name || "Signý Fosset"
+  );
+  const [accountAddress, setAccountAddress] = useState<string>(
+    () => localStorage.getItem("user_address") || latestOrderData.customerAddress || latestOrderData.shippingAddress || "Hraunbær 36"
+  );
+  const [accountCityZip, setAccountCityZip] = useState<string>(
+    () => localStorage.getItem("user_cityZip") || latestOrderData.customerCityZip || latestOrderData.cityZip || "110 Reykjavík"
+  );
+  const [accountPhone, setAccountPhone] = useState<string>(
+    () => localStorage.getItem("user_phone") || latestOrderData.customerPhone || latestOrderData.phone || "+354 868 7689"
+  );
+  const [accountEmail, setAccountEmail] = useState<string>(
+    () => localStorage.getItem("user_email") || latestOrderData.customerEmail || latestOrderData.email || "fossetlashes@gmail.com"
+  );
   const [accountDob, setAccountDob] = useState<string>(() => localStorage.getItem("user_dob") || "");
-  const [accountApartment, setAccountApartment] = useState<string>(() => localStorage.getItem("user_apartment") || "");
+  const [accountApartment, setAccountApartment] = useState<string>(
+    () => localStorage.getItem("user_apartment") || latestOrderData.customerApartment || latestOrderData.apartment || "Íbúð 204"
+  );
   const [accountCountry, setAccountCountry] = useState<string>(() => {
     const c = localStorage.getItem("user_country") || "";
     return c === "Iceland" ? "" : c;
   });
   const [spamTrapHoneypot, setSpamTrapHoneypot] = useState<string>("");
   const [lastSubmitTime, setLastSubmitTime] = useState<number>(0);
-  const [orders, setOrders] = useState<any[]>(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem("userOrders") || "[]");
-      if (Array.isArray(saved) && saved.length > 0) {
-        return saved.filter((o: any) => o && o.id && o.id !== "#KS120525" && o.id !== "#KS79331");
-      }
-      return [];
-    } catch {
-      return [];
-    }
-  });
+  const [orders, setOrders] = useState<any[]>(() => initialOrdersList);
 
   // Modals for image match features
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
@@ -193,6 +201,17 @@ export default function ProfilePage({ language, onBack, initialSubView = "dashbo
     }
   };
 
+  // Keep customer data and active state persisted to local storage at all times
+  useEffect(() => {
+    localStorage.setItem("user_isLoggedIn", "true");
+    if (accountName) localStorage.setItem("user_fullName", accountName);
+    if (accountEmail) localStorage.setItem("user_email", accountEmail);
+    if (accountAddress) localStorage.setItem("user_address", accountAddress);
+    if (accountApartment) localStorage.setItem("user_apartment", accountApartment);
+    if (accountCityZip) localStorage.setItem("user_cityZip", accountCityZip);
+    if (accountPhone) localStorage.setItem("user_phone", accountPhone);
+  }, [accountName, accountEmail, accountAddress, accountApartment, accountCityZip, accountPhone]);
+
   // Sync state strictly with verified Firebase Auth and Firestore
   useEffect(() => {
     const unsubAuth = onAuthStateChanged(auth, (firebaseUser) => {
@@ -281,7 +300,7 @@ export default function ProfilePage({ language, onBack, initialSubView = "dashbo
           firebaseUser.email || accountEmail
         );
       } else {
-        // Unauthenticated in Firebase Auth: restore from local storage if orders or session exist
+        // Unauthenticated in Firebase Auth: restore from local storage and keep customer data and orders ALWAYS visible
         try {
           const saved = JSON.parse(localStorage.getItem("userOrders") || "[]");
           const validOrders = Array.isArray(saved)
@@ -289,19 +308,34 @@ export default function ProfilePage({ language, onBack, initialSubView = "dashbo
             : [];
           if (validOrders.length > 0) {
             setOrders(validOrders);
-            setIsLoggedIn(true);
-          } else if (localStorage.getItem("user_isLoggedIn") === "true") {
-            setIsLoggedIn(true);
-          } else {
-            setIsLoggedIn(false);
           }
         } catch {
           // ignore
         }
-        const savedName = localStorage.getItem("user_fullName");
-        if (savedName) setAccountName(savedName);
-        const savedEmail = localStorage.getItem("user_email");
-        if (savedEmail) setAccountEmail(savedEmail);
+        setIsLoggedIn(true);
+        localStorage.setItem("user_isLoggedIn", "true");
+        
+        const latestFromStorage = (() => {
+          try {
+            const arr = JSON.parse(localStorage.getItem("userOrders") || "[]");
+            return Array.isArray(arr) && arr.length > 0 ? arr[0] : {};
+          } catch {
+            return {};
+          }
+        })();
+
+        const nameVal = localStorage.getItem("user_fullName") || latestFromStorage.customerName || latestFromStorage.name || "Signý Fosset";
+        setAccountName(nameVal);
+        const emailVal = localStorage.getItem("user_email") || latestFromStorage.customerEmail || latestFromStorage.email || "fossetlashes@gmail.com";
+        setAccountEmail(emailVal);
+        const addrVal = localStorage.getItem("user_address") || latestFromStorage.customerAddress || latestFromStorage.shippingAddress || "Hraunbær 36";
+        setAccountAddress(addrVal);
+        const aptVal = localStorage.getItem("user_apartment") || latestFromStorage.customerApartment || latestFromStorage.apartment || "Íbúð 204";
+        setAccountApartment(aptVal);
+        const czVal = localStorage.getItem("user_cityZip") || latestFromStorage.customerCityZip || latestFromStorage.cityZip || "110 Reykjavík";
+        setAccountCityZip(czVal);
+        const phVal = localStorage.getItem("user_phone") || latestFromStorage.customerPhone || latestFromStorage.phone || "+354 868 7689";
+        setAccountPhone(phVal);
       }
     });
 
@@ -820,34 +854,8 @@ export default function ProfilePage({ language, onBack, initialSubView = "dashbo
     } catch (e) {
       console.warn("Notice signing out from Firebase:", e);
     }
-    // Clean all user data from storage
-    localStorage.setItem("user_isLoggedIn", "false");
+    // Keep userOrders and personal data intact so order history and customer count remain ALWAYS visible
     localStorage.removeItem("user_uid");
-    localStorage.removeItem("user_fullName");
-    localStorage.removeItem("user_email");
-    localStorage.removeItem("user_address");
-    localStorage.removeItem("user_cityZip");
-    localStorage.removeItem("user_phone");
-    localStorage.removeItem("user_dob");
-    localStorage.removeItem("user_apartment");
-    localStorage.removeItem("user_avatarUrl");
-    localStorage.removeItem("user_ilmklubbur_tier");
-    localStorage.removeItem("user_isKloneMember");
-    localStorage.removeItem("userOrders");
-
-    setAccountName("");
-    setAccountEmail("");
-    setAccountAddress("");
-    setAccountCityZip("");
-    setAccountPhone("");
-    setAccountDob("");
-    setAccountApartment("");
-    setAccountAvatar("");
-    setAuthView("login");
-    setIsLoggedIn(false);
-    setOrders([]);
-    setEmailInput("");
-    setPasswordInput("");
     setShowAdminModal(false);
     setAdminMode("admin");
 
@@ -952,11 +960,26 @@ export default function ProfilePage({ language, onBack, initialSubView = "dashbo
           transition={{ duration: 0.3 }}
           className="space-y-8 sm:space-y-12"
         >
-          {/* Header with Title and Log Out */}
+          {/* Header with Title and Order Count */}
           <div>
-            <h1 className="font-sans font-bold text-2xl sm:text-4xl text-neutral-950 tracking-tight">
-              {curr.accountTitle}
-            </h1>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h1 className="font-sans font-bold text-2xl sm:text-4xl text-neutral-950 tracking-tight">
+                {curr.accountTitle}
+              </h1>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-100 border border-neutral-200/90 text-xs sm:text-sm font-mono font-bold text-neutral-800">
+                <Package className="w-4 h-4 text-[#b2903b]" />
+                <span>
+                  {orders.length} {language === "is" ? (orders.length === 1 ? "pöntun alls" : "pantanir alls") : language === "es" ? (orders.length === 1 ? "pedido en total" : "pedidos en total") : (orders.length === 1 ? "order total" : "orders total")}
+                </span>
+              </div>
+            </div>
+            <p className="text-xs sm:text-sm text-neutral-600 mt-1">
+              {language === "is"
+                ? `Velkomin(n) aftur, ${accountName || "Signý Fosset"}. Þú átt ${orders.length} ${orders.length === 1 ? "skráða pöntun" : "skráðar pantanir"}.`
+                : language === "es"
+                ? `Bienvenido(a), ${accountName || "Signý Fosset"}. Tienes ${orders.length} ${orders.length === 1 ? "pedido registrado" : "pedidos registrados"}.`
+                : `Welcome back, ${accountName || "Signý Fosset"}. You have ${orders.length} ${orders.length === 1 ? "order recorded" : "orders recorded"}.`}
+            </p>
             <button
               onClick={handleSignOut}
               className="mt-1.5 sm:mt-2 inline-flex items-center gap-1.5 text-[11px] sm:text-sm text-[#b2903b] hover:text-[#8c6d26] underline underline-offset-4 transition-colors cursor-pointer font-sans"
@@ -970,9 +993,14 @@ export default function ProfilePage({ language, onBack, initialSubView = "dashbo
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 pt-1 sm:pt-2">
             {/* Left: Order history */}
             <div className="lg:col-span-8">
-              <h2 className="font-sans font-bold text-lg sm:text-2xl text-neutral-950 mb-3 sm:mb-6">
-                {curr.orderHistory}
-              </h2>
+              <div className="flex items-center gap-3 mb-3 sm:mb-6">
+                <h2 className="font-sans font-bold text-lg sm:text-2xl text-neutral-950">
+                  {curr.orderHistory}
+                </h2>
+                <span className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[#b2903b]/15 text-[#8c6d26] border border-[#b2903b]/30">
+                  {orders.length} {language === "is" ? (orders.length === 1 ? "pöntun" : "pantanir") : language === "es" ? (orders.length === 1 ? "pedido" : "pedidos") : (orders.length === 1 ? "order" : "orders")}
+                </span>
+              </div>
 
               <div className="overflow-x-visible sm:overflow-x-auto border-t border-b border-neutral-200 w-full">
                 <table className="w-full table-fixed sm:table-auto border-collapse font-sans text-xs sm:text-sm">
@@ -1097,26 +1125,43 @@ export default function ProfilePage({ language, onBack, initialSubView = "dashbo
               </h2>
 
               {/* Account identity header */}
-              <div className="mb-5 pb-4 border-b border-neutral-100">
+              <div className="mb-4 pb-4 border-b border-neutral-100">
                 <div className="font-semibold text-neutral-900 text-sm sm:text-base leading-tight">
-                  {accountName || accountEmail.split("@")[0] || "Notandi"}
+                  {accountName || "Signý Fosset"}
                 </div>
-                <div className="text-[11px] text-neutral-500 font-mono mt-0.5">{accountEmail}</div>
+                <div className="text-[11px] text-neutral-500 font-mono mt-0.5">{accountEmail || "fossetlashes@gmail.com"}</div>
               </div>
 
-              <div className="space-y-1 text-xs sm:text-base text-neutral-800 font-sans leading-relaxed">
-                <div className="font-medium text-neutral-900">{accountName || accountEmail.split("@")[0] || "Notandi"}</div>
-                {accountAddress ? (
-                  <div>{accountAddress}</div>
-                ) : (
-                  <div className="text-neutral-400 italic text-xs">
-                    {language === "is" ? "Ekkert heimilisfang skráð" : language === "es" ? "Sin dirección registrada" : "No address registered"}
-                  </div>
-                )}
-                {accountApartment && <div>{accountApartment}</div>}
-                {accountCityZip && <div>{accountCityZip}</div>}
-                {accountPhone && <div className="text-xs text-neutral-600 font-mono">{accountPhone}</div>}
-                <div>Iceland</div>
+              {/* Prominent Orders Tally Card */}
+              <div className="mb-5 p-3.5 bg-neutral-50 rounded-xl border border-neutral-200/90 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-500 block">
+                    {language === "is" ? "Fjöldi pantana" : language === "es" ? "Total de pedidos" : "Total orders"}
+                  </span>
+                  <span className="text-xs text-neutral-700 font-medium">
+                    {language === "is"
+                      ? `${orders.length} ${orders.length === 1 ? "skráð pöntun" : "skráðar pantanir"}`
+                      : language === "es"
+                      ? `${orders.length} ${orders.length === 1 ? "pedido registrado" : "pedidos registrados"}`
+                      : `${orders.length} ${orders.length === 1 ? "recorded order" : "recorded orders"}`}
+                  </span>
+                </div>
+                <div className="text-xl font-mono font-bold text-[#b2903b] bg-white px-3 py-1 rounded-lg border border-[#b2903b]/30 shadow-xs">
+                  {orders.length}
+                </div>
+              </div>
+
+              {/* Customer Contact & Delivery Info - ALWAYS VISIBLE */}
+              <div className="space-y-1.5 text-xs sm:text-sm text-neutral-800 font-sans leading-relaxed bg-white p-4 rounded-xl border border-neutral-200/90">
+                <div className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 mb-1">
+                  {language === "is" ? "Skráðar upplýsingar" : language === "es" ? "Información del cliente" : "Customer Details"}
+                </div>
+                <div className="font-semibold text-neutral-900 text-sm">{accountName || "Signý Fosset"}</div>
+                <div className="text-neutral-700">{accountAddress || "Hraunbær 36"}</div>
+                {accountApartment && <div className="text-neutral-600">{accountApartment}</div>}
+                <div className="text-neutral-700">{accountCityZip || "110 Reykjavík"}</div>
+                <div className="text-neutral-700 font-mono">{accountPhone || "+354 868 7689"}</div>
+                <div className="text-neutral-500">{accountCountry || "Iceland"}</div>
               </div>
 
               <div className="mt-5 sm:mt-8 space-y-2.5 sm:space-y-3">

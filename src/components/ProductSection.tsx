@@ -120,6 +120,8 @@ export default function ProductSection({
               referrerPolicy="no-referrer"
               loading="lazy"
               decoding="async"
+              width={400}
+              height={500}
               className={`w-full h-full opacity-95 group-hover:scale-105 transition-all duration-1000 ${fragrance.id === 'nivis-flo' ? 'object-contain' : 'object-cover'}`}
             />
           </div>
@@ -233,6 +235,8 @@ export default function ProductSection({
                   referrerPolicy="no-referrer"
                   loading="lazy"
                   decoding="async"
+                  width={800}
+                  height={420}
                   className="w-full h-full object-cover opacity-100 group-hover:scale-105 transition-all duration-1000"
                 />
               </div>
@@ -269,6 +273,8 @@ export default function ProductSection({
                   referrerPolicy="no-referrer"
                   loading="lazy"
                   decoding="async"
+                  width={800}
+                  height={420}
                   className="w-full h-full object-cover opacity-100 group-hover:scale-105 transition-all duration-1000"
                 />
               </div>

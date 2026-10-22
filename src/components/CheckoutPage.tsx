@@ -1637,7 +1637,15 @@ export default function CheckoutPage({
                     <div key={idx} className="flex gap-3 text-xs text-neutral-800 items-center">
                       <div className="w-12 h-12 rounded bg-neutral-100 border border-neutral-200 overflow-hidden shrink-0 flex items-center justify-center">
                         {item.fragrance.image ? (
-                          <img src={item.fragrance.image} alt={item.fragrance.name} className="w-full h-full object-cover" />
+                          <img
+                            src={item.fragrance.image}
+                            alt={item.fragrance.name}
+                            loading="lazy"
+                            decoding="async"
+                            width={48}
+                            height={48}
+                            className="w-full h-full object-cover"
+                          />
                         ) : (
                           <Sparkles className="w-4 h-4 text-[#b2903b]" />
                         )}

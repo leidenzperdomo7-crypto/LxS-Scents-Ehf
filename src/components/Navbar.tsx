@@ -131,8 +131,16 @@ export default function Navbar({
               }}
               className="group flex flex-col items-center justify-center select-none cursor-pointer"
             >
-              {/* Image from user request acting as the main logo */}
-              <img src="https://i.postimg.cc/wMYnCZpf/LOGO-B2903B-removebg-preview.png" alt="LxS SCENTS Logo" className="h-[32px] xs:h-[38px] sm:h-[95px] w-auto object-contain transition-all duration-500 group-hover:scale-105" />
+              <img
+                src="https://i.postimg.cc/wMYnCZpf/LOGO-B2903B-removebg-preview.png"
+                alt="LxS SCENTS Logo"
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
+                width={280}
+                height={95}
+                className="h-[32px] xs:h-[38px] sm:h-[95px] w-auto object-contain transition-all duration-500 group-hover:scale-105"
+              />
             </button>
           </div>
 

@@ -133,6 +133,10 @@ export default function PromoModal({ isOpen, onClose, language }: PromoModalProp
           <img
             src="https://i.postimg.cc/wMYnCZpf/LOGO-B2903B-removebg-preview.png"
             alt="LxS SCENTS Promo"
+            loading="lazy"
+            decoding="async"
+            width={360}
+            height={180}
             className="w-[85%] max-w-[360px] h-auto object-contain drop-shadow-xl"
           />
         </div>
@@ -144,6 +148,10 @@ export default function PromoModal({ isOpen, onClose, language }: PromoModalProp
             <img
               src="https://i.postimg.cc/wMYnCZpf/LOGO-B2903B-removebg-preview.png"
               alt="LxS SCENTS Mini Logo"
+              loading="lazy"
+              decoding="async"
+              width={140}
+              height={70}
               className="w-[140px] h-auto object-contain drop-shadow-md"
             />
           </div>

@@ -212,6 +212,10 @@ export default function ReceiptModal({
                             <img
                               src={it.image}
                               alt={it.name}
+                              loading="lazy"
+                              decoding="async"
+                              width={36}
+                              height={36}
                               className="w-9 h-9 rounded object-cover border border-neutral-200 shrink-0"
                             />
                           )}

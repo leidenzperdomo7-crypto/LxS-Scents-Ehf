@@ -1602,7 +1602,7 @@ export default function App() {
             </div>
 
             {/* The Image (Starting right under the header) */}
-            <div className={`relative z-10 w-[115%] sm:w-[110%] md:w-[105%] flex-shrink-0 max-w-none mt-0 ${searchQuery ? "hidden" : ""}`}>
+            <div className={`relative z-10 w-[115%] sm:w-[110%] md:w-[105%] flex-shrink-0 max-w-none mt-0 aspect-[1280/614] ${searchQuery ? "hidden" : ""}`}>
               <img
                 src={IMAGES.hero}
                 alt="LxS SCENTS Hero Display"
@@ -1610,7 +1610,9 @@ export default function App() {
                 loading="eager"
                 fetchPriority="high"
                 decoding="async"
-                className="w-full h-auto block"
+                width={1280}
+                height={614}
+                className="w-full h-auto block transition-opacity duration-700"
               />
             </div>
 
@@ -1618,7 +1620,15 @@ export default function App() {
             <div id="hero-brand-contents" className={`relative z-20 text-center px-6 max-w-4xl space-y-4 mt-6 sm:mt-24 ${searchQuery ? "hidden" : ""}` }>
               {/* Grand Elegant Calligraphy Monogram Logo Overlay */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.15] z-[-1] -mt-10 sm:-mt-20">
-                <img src="https://i.postimg.cc/wMYnCZpf/LOGO-B2903B-removebg-preview.png" alt="LxS SCENTS Shadow Logo" className="w-[450px] sm:w-[700px] h-[350px] sm:h-[550px] object-contain drop-shadow-[0_15px_30px_rgba(178,144,59,0.3)]" />
+                <img
+                  src="https://i.postimg.cc/wMYnCZpf/LOGO-B2903B-removebg-preview.png"
+                  alt="LxS SCENTS Shadow Logo"
+                  loading="lazy"
+                  decoding="async"
+                  width={700}
+                  height={550}
+                  className="w-[450px] sm:w-[700px] h-[350px] sm:h-[550px] object-contain drop-shadow-[0_15px_30px_rgba(178,144,59,0.3)]"
+                />
               </div>
 
               <span className="text-sm sm:text-base md:text-lg tracking-[0.5em] sm:tracking-[0.6em] text-gold-600 font-sans font-medium uppercase block">
@@ -1904,7 +1914,15 @@ export default function App() {
 
             {/* Left Column: Only LxS SCENTS Logo */}
             <div className="relative hidden md:flex w-full md:w-1/2 bg-[#f5f2eb] border-b md:border-b-0 md:border-r border-neutral-300 min-h-[220px] md:min-h-[440px] flex-col items-center justify-center p-8 select-none">
-              <img src="https://i.postimg.cc/wMYnCZpf/LOGO-B2903B-removebg-preview.png" alt="LxS SCENTS Promo" className="w-[85%] max-w-[360px] h-auto object-contain drop-shadow-xl" />
+              <img
+                src="https://i.postimg.cc/wMYnCZpf/LOGO-B2903B-removebg-preview.png"
+                alt="LxS SCENTS Promo"
+                loading="lazy"
+                decoding="async"
+                width={360}
+                height={180}
+                className="w-[85%] max-w-[360px] h-auto object-contain drop-shadow-xl"
+              />
             </div>
 
             {/* Right Column: Mini logo, headline text, description, email form and CTA button */}
@@ -1912,7 +1930,15 @@ export default function App() {
               
               {/* Keep the small logo on the top right side */}
               <div className="flex flex-col items-center justify-center select-none">
-                <img src="https://i.postimg.cc/wMYnCZpf/LOGO-B2903B-removebg-preview.png" alt="LxS SCENTS Mini Logo" className="w-[140px] h-auto object-contain drop-shadow-md" />
+                <img
+                  src="https://i.postimg.cc/wMYnCZpf/LOGO-B2903B-removebg-preview.png"
+                  alt="LxS SCENTS Mini Logo"
+                  loading="lazy"
+                  decoding="async"
+                  width={140}
+                  height={70}
+                  className="w-[140px] h-auto object-contain drop-shadow-md"
+                />
               </div>
 
               {/* Text from the photo under the logo on the right side */}
@@ -2305,6 +2331,10 @@ export default function App() {
               <img 
                 src="https://i.postimg.cc/wMYnCZpf/LOGO-B2903B-removebg-preview.png" 
                 alt="Brand Logo" 
+                loading="lazy"
+                decoding="async"
+                width={240}
+                height={128}
                 className="h-32 object-contain opacity-80 cursor-pointer hover:opacity-100 transition-opacity" 
                 referrerPolicy="no-referrer" 
                 onClick={() => {
@@ -2375,6 +2405,10 @@ export default function App() {
               <img 
                 src="https://i.postimg.cc/wMYnCZpf/LOGO-B2903B-removebg-preview.png" 
                 alt="Brand Logo" 
+                loading="lazy"
+                decoding="async"
+                width={240}
+                height={128}
                 className="h-32 object-contain opacity-80 cursor-pointer hover:opacity-100 transition-opacity" 
                 referrerPolicy="no-referrer" 
                 onClick={() => {
@@ -2434,6 +2468,10 @@ export default function App() {
               <img 
                 src="https://i.postimg.cc/wMYnCZpf/LOGO-B2903B-removebg-preview.png" 
                 alt="Brand Logo" 
+                loading="lazy"
+                decoding="async"
+                width={240}
+                height={128}
                 className="h-32 object-contain opacity-80 cursor-pointer hover:opacity-100 transition-opacity" 
                 referrerPolicy="no-referrer" 
                 onClick={() => {
@@ -2493,6 +2531,10 @@ export default function App() {
               <img 
                 src="https://i.postimg.cc/wMYnCZpf/LOGO-B2903B-removebg-preview.png" 
                 alt="Brand Logo" 
+                loading="lazy"
+                decoding="async"
+                width={240}
+                height={128}
                 className="h-32 object-contain opacity-80 cursor-pointer hover:opacity-100 transition-opacity" 
                 referrerPolicy="no-referrer" 
                 onClick={() => {
@@ -2560,6 +2602,10 @@ export default function App() {
               <img 
                 src="https://i.postimg.cc/wMYnCZpf/LOGO-B2903B-removebg-preview.png" 
                 alt="Brand Logo" 
+                loading="lazy"
+                decoding="async"
+                width={240}
+                height={128}
                 className="h-32 object-contain opacity-80 cursor-pointer hover:opacity-100 transition-opacity" 
                 referrerPolicy="no-referrer" 
                 onClick={() => {
@@ -2585,6 +2631,10 @@ export default function App() {
                 <img 
                   src="https://i.postimg.cc/wMYnCZpf/LOGO-B2903B-removebg-preview.png" 
                   alt="Brand Logo" 
+                  loading="lazy"
+                  decoding="async"
+                  width={360}
+                  height={192}
                   className="h-48 object-contain opacity-90 cursor-pointer hover:opacity-100 transition-opacity" 
                   referrerPolicy="no-referrer" 
                   onClick={() => {
@@ -2684,6 +2734,10 @@ export default function App() {
               <img 
                 src="https://i.postimg.cc/wMYnCZpf/LOGO-B2903B-removebg-preview.png" 
                 alt="Brand Logo" 
+                loading="lazy"
+                decoding="async"
+                width={240}
+                height={128}
                 className="h-32 object-contain opacity-80 cursor-pointer hover:opacity-100 transition-opacity" 
                 referrerPolicy="no-referrer" 
                 onClick={() => {

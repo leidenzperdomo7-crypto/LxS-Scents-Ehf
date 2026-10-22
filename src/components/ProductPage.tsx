@@ -117,8 +117,11 @@ export default function ProductPage({
               alt={product.name} 
               referrerPolicy="no-referrer"
               loading="eager"
+              fetchPriority="high"
               decoding="async"
-              className={`w-full h-full object-cover z-10 relative`}
+              width={600}
+              height={750}
+              className={`w-full h-full object-cover z-10 relative transition-opacity duration-500`}
             />
           </div>
 

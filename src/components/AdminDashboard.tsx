@@ -1272,7 +1272,15 @@ export default function AdminDashboard({
                             <div className="flex items-center gap-3">
                               <div className="w-9 h-9 rounded-full bg-neutral-100 border border-neutral-200 overflow-hidden flex-shrink-0 flex items-center justify-center">
                                 {user.avatarUrl ? (
-                                  <img src={user.avatarUrl} alt={user.displayName} className="w-full h-full object-cover" />
+                                  <img
+                                    src={user.avatarUrl}
+                                    alt={user.displayName}
+                                    loading="lazy"
+                                    decoding="async"
+                                    width={36}
+                                    height={36}
+                                    className="w-full h-full object-cover"
+                                  />
                                 ) : (
                                   <UserIcon className="w-4 h-4 text-neutral-400" />
                                 )}
@@ -1729,7 +1737,15 @@ service firebase.storage {
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-neutral-800 border border-neutral-700 overflow-hidden flex items-center justify-center flex-shrink-0">
                   {selectedCustomer.avatarUrl ? (
-                    <img src={selectedCustomer.avatarUrl} alt={selectedCustomer.displayName} className="w-full h-full object-cover" />
+                    <img
+                      src={selectedCustomer.avatarUrl}
+                      alt={selectedCustomer.displayName}
+                      loading="lazy"
+                      decoding="async"
+                      width={48}
+                      height={48}
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
                     <UserIcon className="w-6 h-6 text-neutral-400" />
                   )}

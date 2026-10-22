@@ -92,6 +92,10 @@ export default function CollectionView({
               src={imageSrc}
               alt={title}
               referrerPolicy="no-referrer"
+              loading="lazy"
+              decoding="async"
+              width={800}
+              height={1000}
               className="w-full h-full object-cover opacity-100"
             />
           </div>
@@ -155,6 +159,8 @@ export default function CollectionView({
                       referrerPolicy="no-referrer"
                       loading="lazy"
                       decoding="async"
+                      width={400}
+                      height={500}
                       className={`w-full h-full opacity-95 group-hover:scale-105 transition-all duration-1000 ${fragrance.id === 'nivis-flo' ? 'object-contain' : 'object-cover'}`}
                     />
                   </div>
